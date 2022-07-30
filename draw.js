@@ -62,17 +62,21 @@ Draw.cell = function(x, y){
     this._context.fillStyle = "#fff"; //biela
     this._context.fillRect(left,top,size,size);
 
-    /* zjistit pocet atmu */
+    /* zjistit pocet atomov */
     var count = Board.getAtoms(x, y);
-    console.log("Kreslim bunku ", [x], " ",[y], "s atomami ",count);
+    //console.log("Kreslim bunku ", [x], " ",[y], "s atomami ",count);
     if (!count) {return;} //ak je pocet 0, tak skonci
+
+    /* Zistit hraca - farbu */
+    var player = Board.getPlayer(x, y);
+    var color = Score.getColor(player);
 
     /* vykreslit */
     var positions = this.POSITIONS[count]; 
      
     /* ladenie - zjistit zdali nepristupujeme na vyssi index, ne je povoleno */
 
-    if (this.POSITIONS[count]==null) {debugger;}
+    //if (this.POSITIONS[count]==null) {debugger;}
     
     for (var i=0; i<positions.length; i++){
         var position = positions[i]; //postupne vyberam pozicie, napr. ak i==0 tak position = [1/2, 1/2]
@@ -80,18 +84,18 @@ Draw.cell = function(x, y){
         var posY = position[1]; //v priklade 1/2
         var atomX = (x + posX) * this.CELL; //kde sa ma nakreslit atom
         var atomY = (y + posY) * this.CELL;
-        this._drawAtom(atomX, atomY);
+        this._drawAtom(atomX, atomY, color);
     }
 }      
 
 
-Draw._drawAtom = function(x,y){
+Draw._drawAtom = function(x,y, color){
     this._context.beginPath();
 
     this._context.moveTo(x+this.ATOM, y);
     this._context.arc(x,y,this.ATOM, 0 , 2*Math.PI, false);
 
-    this._context.fillStyle = "Crimson";
+    this._context.fillStyle = color;
     this._context.fill();
     this._context.stroke();
 }

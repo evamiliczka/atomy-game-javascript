@@ -26,6 +26,7 @@ Board.init = function() {
     }
  }
 } //Board.init
+
 /* Kto vlastni bunku s danymi suradnicami? */
 Board.getPlayer = function(x,y){
     return this._data[x][y].player;
@@ -40,13 +41,13 @@ Board.addAtom = function(x,y, player){
     else
         /* Ak mame kriticke bunky */
         if (this._criticals.length > 0){
-            Player.stopListening();
+            Player.stopListening(); 
             this._explode();
         }
 }
 
 /* Pridaj atom a pripadne pridaj (push) bunky do zoznamu kritickych buniek */
-Board._addAndPush = function(x,y){
+Board._addAndPush = function(x,y, player){
     var cell = this._data[x][y];
 
     /* Zmena poctu bodov (=poctu vlastnenych buniek) -povodny vlastnik bunky straca bod, novy vlastnik ziskava bod. Moze to byt aj ten isty hrac */
@@ -91,18 +92,21 @@ Board._explode = function(){
     /* Prejdeme susedne bunky a pridame do nich po atome */
     for (var i=0; i<neighbors.length; i++){
         var suradnice = neighbors[i]; //vyberiem i-tu bunku
-        this._addAndPush(suradnice[0],suradnice[1]);
+        this._addAndPush(suradnice[0],suradnice[1], cell.player);
     }
 
 
-
+    if (Score.isGameOver()){
+        return;
+    }
     /** Ak nie su ziadne nadkriticke bunky, mozeme pokracovat a povolit mys.
      * Ak rozprad pokracuje, naplanujeme dalsiu exploziu za dobu Board.DELAY
      */
-    if (this._criticals.length){
-       // debugger;
+    else
+        if (this._criticals.length){
         setTimeout(this._explode.bind(this), this.DELAY);
-    } else {
+    } 
+        else {
         Draw.cell(x,y);
         Player.startListening();
     }
