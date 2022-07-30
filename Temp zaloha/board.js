@@ -18,14 +18,14 @@ Board.init = function() {
         var limit = this._getLimit(i,j); //zisti limit
         var cell={
             atoms: 0, //nastav pocet atomov
-            limit: limit, //nastav 
-            player: -1 //hracov si cislujem, 0,1, kazda bunka s niecim patri prave jednemu hracovi
-
+            limit: limit, //nastav limit
+            player: -1 //hracov si cislijem, 0,1, kazda bunka s niecim patri prave jednemu hracovi
         }
         this._data[i].push(cell); //pridaj bunku do pola
     }
  }
 } //Board.init
+
 /* Kto vlastni bunku s danymi suradnicami? */
 Board.getPlayer = function(x,y){
     return this._data[x][y].player;
