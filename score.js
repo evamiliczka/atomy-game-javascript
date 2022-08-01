@@ -2,7 +2,7 @@
  * V inych suboroch hraca vidime ako cislo, momentlane 0 a 1
  */
 
-var Score = {
+ var Score = {
     _players: [
         {
             color: "blue",
@@ -35,14 +35,12 @@ Score.init = function(){
     }
 }
 
-
 Game.start = function(){
     Board.init();
     Draw.init();
     Score.init();
     Player.startListening();
 }
-
 
 Score.getColor = function(player){
     return this._players[player].color;
@@ -52,8 +50,7 @@ Score.getPlayerCount = function(){
     return this._players.length;
 }
 
-
-Score.isGameOVer = function(){
+Score.isGameOver = function(){
     return this._gameOver;
 }
 
