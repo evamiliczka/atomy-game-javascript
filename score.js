@@ -31,7 +31,7 @@ Score.init = function(){
         p.appendChild(document.createTextNode(tempPlayer.name + ": "));
         p.appendChild(tempPlayer.node);
 
-        document.body.appendChild(p);
+        document.getElementById("atomy").appendChild(p);
     }
 }
 

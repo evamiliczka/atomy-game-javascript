@@ -41,7 +41,7 @@ Draw.init = function(){
             this.cell(i,j);
         }
     }
-    document.body.appendChild(canvas);
+    document.getElementById("atomy").appendChild(canvas);
 }
 
 
