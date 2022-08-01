@@ -2,8 +2,6 @@
  * V inych suboroch hraca vidime ako cislo, momentlane 0 a 1
  */
 
-
-
 var Score = {
     _players: [
         {
