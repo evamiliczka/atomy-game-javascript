@@ -5,14 +5,14 @@
 var Draw = {
     POSITIONS:[ //pole pozicii
         null,
-        [[1/2, 1/2]], //jeden atom
-        [[1/4 , 1/4], [3/4, 3/4]], //dva atomy
-        [[1/2, 1/2], [1/4 , 1/4], [3/4, 3/4]], //tri atomy
-        [[1/4 , 1/4], [1/4, 3/4],  [3/4 , 3/4], [3/4, 1/4]], //styri atomy
-        [[1/2, 1/2],[1/4 , 1/4], [1/4, 3/4],  [3/4 , 3/4], [3/4, 1/4] ], //pat atomov
-        [[1/4, 1/4],[1/4 , 1/2], [1/4, 3/4],  [3/4 , 1/4], [3/4, 1/2], [3/4, 3/4] ], //sest
-        [[1/4, 1/4],[1/4 , 1/2], [1/4, 3/4],  [1/2, 1/2], [3/4 , 1/4], [3/4, 1/2], [3/4, 3/4] ], //sedem
-        [[1/4, 1/4],[1/4 , 1/2], [1/4, 3/4],  [1/2, 1/4], [1/2, 3/4], [3/4 , 1/4], [3/4, 1/2], [3/4, 3/4] ]], //osem
+        [new XY(1/2, 1/2)], //jeden atom
+        [new XY(1/4 , 1/4), new XY(3/4, 3/4)], //dva atomy
+        [new XY(1/2, 1/2), new XY(1/4 , 1/4), new XY(3/4, 3/4)], //tri atomy
+        [new XY(1/4 , 1/4), new XY(1/4, 3/4),  new XY(3/4 , 3/4), new XY(3/4, 1/4)], //styri atomy
+        [new XY(1/2, 1/2),new XY(1/4 , 1/4), new XY(1/4, 3/4),  new XY(3/4 , 3/4), new XY(3/4, 1/4)], //pat atomov
+        [new XY(1/4, 1/4),new XY(1/4 , 1/2), new XY(1/4, 3/4),  new XY(3/4 , 1/4), new XY(3/4, 1/2), new XY(3/4, 3/4) ], //sest
+        [new XY(1/4, 1/4),new XY(1/4 , 1/2), new XY(1/4, 3/4),  new XY(1/2, 1/2), new XY(3/4 , 1/4), new XY(3/4, 1/2), new XY(3/4, 3/4) ], //sedem
+        [new XY(1/4, 1/4),new XY(1/4 , 1/2), new XY(1/4, 3/4), new XY(1/2, 1/4), new XY(1/2, 3/4), new XY(3/4 , 1/4), new XY(3/4, 1/2), new XY(3/4, 3/4)]], //osem
     CELL : 60, // konstanta - velkost jednej bunky
     LINE : 2,  // konstanta - hrubka ciary
     ATOM : 7,  // konstanta - polomer atomu
@@ -38,7 +38,7 @@ Draw.init = function(){
     for (var i=0; i<Game.SIZE; i++){
         for (var j=0; j<Game.SIZE; j++){
             //vykresli (bielu) bunku, takze nevykreslene vlastne ostanu len deliace ciary - cierne
-            this.cell(i,j);
+            this.cell(new XY(i, j)); //!!!
         }
     }
     document.getElementById("atomy").appendChild(canvas);
@@ -46,7 +46,7 @@ Draw.init = function(){
 
 
 /* vykreslit jednu bunku */
-Draw.cell = function(x, y){
+Draw.cell = function(xy){
   
 
     /**
@@ -56,19 +56,21 @@ Draw.cell = function(x, y){
      */
 
     //premazat bilou
+   // debugger;  //!!!
     var size = this.CELL - this.LINE;
-    var left = x*this.CELL + this.LINE;
-    var top  = y*this.CELL + this.LINE;
+    var offset = new XY(this.LINE, this.LINE); //???
+    var leftTop = xy.multiply(this.CELL).add(offset);
+
     this._context.fillStyle = "#fff"; //biela
-    this._context.fillRect(left,top,size,size);
+    this._context.fillRect(leftTop.x,leftTop.y,size,size);
 
     /* zjistit pocet atomov */
-    var count = Board.getAtoms(x, y);
+    var count = Board.getAtoms(xy);
     //console.log("Kreslim bunku ", [x], " ",[y], "s atomami ",count);
     if (!count) {return;} //ak je pocet 0, tak skonci
 
     /* Zistit hraca - farbu */
-    var player = Board.getPlayer(x, y);
+    var player = Board.getPlayer(xy);
     var color = Score.getColor(player);
 
     /* vykreslit */
@@ -80,20 +82,17 @@ Draw.cell = function(x, y){
     
     for (var i=0; i<positions.length; i++){
         var position = positions[i]; //postupne vyberam pozicie, napr. ak i==0 tak position = [1/2, 1/2]
-        var posX = position[0]; //v priklade 1/2
-        var posY = position[1]; //v priklade 1/2
-        var atomX = (x + posX) * this.CELL; //kde sa ma nakreslit atom
-        var atomY = (y + posY) * this.CELL;
-        this._drawAtom(atomX, atomY, color);
+        var atom = position.add(xy).multiply(this.CELL);
+        this._drawAtom(atom, color);
     }
 }      
 
 
-Draw._drawAtom = function(x,y, color){
+Draw._drawAtom = function(xy, color){
     this._context.beginPath();
 
-    this._context.moveTo(x+this.ATOM, y);
-    this._context.arc(x,y,this.ATOM, 0 , 2*Math.PI, false);
+    this._context.moveTo(xy.x + this.ATOM, xy.y);
+    this._context.arc(xy.x,xy.y,this.ATOM, 0 , 2*Math.PI, false);
 
     this._context.fillStyle = color;
     this._context.fill();
@@ -101,17 +100,15 @@ Draw._drawAtom = function(x,y, color){
 }
 
 //Verejna funkcia, ktora vrati suradnice bunky s danymi pixelovymi suradnicami
-Draw.getPosition = function(cursorX, cursorY){
+Draw.getPosition = function(cursor){
     var rectangle = this._context.canvas.getBoundingClientRect(); //returns the size of an element and its position relative to the viewport, cize hranice canvas
-    cursorX = cursorX - rectangle.left; //pozicia X v ramci obdlznika
-    cursorY -= rectangle.top;
+    cursor.x = cursor.x - rectangle.left; //pozicia X v ramci obdlznika
+    cursor.y -= rectangle.top;
 
-    if (cursorX < 0 || cursorX > rectangle.width) {return null;}
-    if (cursorY < 0 || cursorY > rectangle.height) {return null;}
+    if (cursor.x < 0 || cursor.x > rectangle.width) {return null;}
+    if (cursor.y < 0 || cursor.y > rectangle.height) {return null;}
 
     // pri klepnuti na oddelovaciu ciaru sa dopustame chyby, ale na tom nam nezalezi
-    var cellX = Math.floor(cursorX / this.CELL); //pocet buniek v x aj y smere je rovnaky
-    var cellY = Math.floor(cursorY / this.CELL);
-    return [cellX, cellY];
+    return cursor.divide(this.CELL);
 }
 

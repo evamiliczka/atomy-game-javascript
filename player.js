@@ -15,17 +15,16 @@ Player.stopListening = function(){
 }
 
 Player.handleEvent = function(e) {
-    var position = Draw.getPosition(e.clientX, e.clientY);
+    var cursor = new XY(e.clientX, e.clientY);
+    var position = Draw.getPosition(cursor);
     if (!position) {return; }
 
-    var x = position[0];
-    var y = position[1];
-    var existing = Board.getPlayer(x, y);
+    var existing = Board.getPlayer(position);
     /* Ak uz bunka ma prideleneho hraca a tan hrac je iny ako sucasny hrac, tah nepovolime */
     if (existing != -1 && existing != this._current) { return;}
 
     /* Inak, teda ka bunka nema pridelenho hraca, alebo je jej vlastnikom hrac na tahu, tak tah povolime a vykoname */
-    Board.addAtom(x, y, this._current);
+    Board.addAtom(position, this._current);
     /*Na tahu je dalsi hrac */
     this._current = (this._current +1) % Score.getPlayerCount();
 }
