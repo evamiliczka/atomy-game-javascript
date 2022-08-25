@@ -5,14 +5,14 @@
  var Score = {
     _players: [
         {
-            color: "blue",
-            name: "Modry hrac",
+            color: "#FFBE0B",
+            name: "Yellow player",
             score: 0,
             node: null //kde v html ho budeme vypisovat
         },
         {
-            color: "red",
-            name: "Cerveny hrac",
+            color: "#3A86FF",
+            name: "Blue player",
             score: 0,
             node: null
         }
@@ -31,7 +31,7 @@ Score.init = function(){
         p.appendChild(document.createTextNode(tempPlayer.name + ": "));
         p.appendChild(tempPlayer.node);
 
-        document.getElementById("atomy").appendChild(p);
+        document.getElementById("atomyRefactoring").appendChild(p);
     }
 }
 

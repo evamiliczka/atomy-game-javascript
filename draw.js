@@ -41,7 +41,7 @@ Draw.init = function(){
             this.cell(new XY(i, j)); //!!!
         }
     }
-    document.getElementById("atomy").appendChild(canvas);
+    document.getElementById("atomyRefactoring").appendChild(canvas);
 }
 
 
