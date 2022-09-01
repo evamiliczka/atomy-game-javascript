@@ -18,46 +18,32 @@ Board.init = function() {
         var limit = this._getLimit(i,j); //zisti limit
         var cell={
             atoms: 0, //nastav pocet atomov
-            limit: limit, //nastav limit
-            player: -1 //hracov si cislijem, 0,1, kazda bunka s niecim patri prave jednemu hracovi
+            limit: limit //nastav limit
         }
         this._data[i].push(cell); //pridaj bunku do pola
     }
  }
 } //Board.init
 
-/* Kto vlastni bunku s danymi suradnicami? */
-Board.getPlayer = function(x,y){
-    return this._data[x][y].player;
-}
 
-/* Musime vediet, kto pridava danu binku  - to je player */
-Board.addAtom = function(x,y, player){
+Board.addAtom = function(x,y){
     /* Pridame, mozno sa zmenilo this._criticals */
-    this._addAndPush(x,y, player);
-    
-    if (Score.isGameOver()){ return;}
-    else
-        /* Ak mame kriticke bunky */
-        if (this._criticals.length > 0){
-            Player.stopListening();
-            this._explode();
-        }
+    this._addAndPush(x,y);
+ 
+    /* Ak mame kriticke bunky */
+    if (this._criticals.length > 0){
+        Player.stopListening();
+        this._explode();
+    }
 }
 
-/* Pridaj atom a pripadne pridaj (push) bunky do zoznamu kritickych buniek */
 Board._addAndPush = function(x,y){
     var cell = this._data[x][y];
 
-    /* Zmena poctu bodov (=poctu vlastnenych buniek) -povodny vlastnik bunky straca bod, novy vlastnik ziskava bod. Moze to byt aj ten isty hrac */
-    Score.removePoint(cell.player);
-    Score.addPoint(player);
-
-    cell.atoms++; //priaj atomy
-    cell.player = player; //hrac, ktory pridal atom sa stava novym vlstnikom bunky, moze to byt aj ten isty
-
-    Draw.cell(x,y);
     
+    cell.atoms++;
+
+    console.log("Bunka ", [x]," ",[y]," menim pocet atomov (++) na ", cell.atoms);
 
     /* Ak je prekrocene nadkriticke mnozstvo */
     if (cell.atoms > cell.limit){
@@ -68,7 +54,7 @@ Board._addAndPush = function(x,y){
         } //else
         this._criticals.push([x,y]);
     }
-
+    Draw.cell(x,y);
 }
 
 

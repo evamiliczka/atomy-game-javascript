@@ -12,41 +12,28 @@
     <body>
         <!-- hru spustame za html elementom s id="atomy"-->
 
-   <!-- Objekt Game ...riadenie hry -->
-   <script src="game.js"></script>
-
-        <!-- Suradnice -->
-        <script src="xy.js"></script>
-
         <!-- Objekt Board ... stav hracej plochy -->
         <script src="board.js"></script>
 
         <!-- Objecr Draw na vykreslovanie -->
         <script src="draw.js"></script>
 
-      
+        <!-- Objekt Game ...riadenie hry -->
+        <script src="game.js"></script>
         
-        <!-- Objekt Player ...hrac --> 
+        <!-- Objekt Player ...praca so vstupom pouzivatela --> 
         <script src="player.js"></script>
-
-        <!-- Objekt PlayerAI ...hrac robot --> 
-        <script src="playerAI.js"></script>
-
-        <!-- Objekt PlayerHuman ...praca so vstupom pouzivatela --> 
-        <script src="playerHuman.js"></script>
+        
+         <!-- Objekt Score ...hraci a ich skore --> 
+         <script src="score.js"></script>
         
          
-         
-         <div id="atomy"></div>
-         
+         <div id="atomy">   
+            Toto je hra atomy.
+         </div>
+         Toto je za hrou atomy.
         <!-- Spustit logiku -->
-        <script>
-            'use strict';
-            const karol = new PlayerHuman("Karol Mudry", "DarkRed");
-            const robot = new PlayerAI("Robot Emil", "DarkGreen");  
-           // debugger;
-            new Game([karol,robot]);
-        </script>
+        <script>Game.start()</script>
     </body>
 </html>
         
