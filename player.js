@@ -13,7 +13,9 @@ class Player {
         node.style.color = color;
         node.appendChild(document.createTextNode(name + ": "));
         node.appendChild(this.#printedScore);
-        document.getElementById("atomy").appendChild(node);
+        console.log('Idem vypisat GetElementBy id');
+        console.log(document.getElementById('atomy'));
+        document.getElementById('atomy').appendChild(node);
         
     }
 

@@ -1,12 +1,11 @@
 class Game {
-    static SIZE = 2;
+    static SIZE = 4;
     #players;
     #currentPlayer;
     #draw;
     #board;
     //players = pole s instncami hracu
     constructor(players){
-        
         this.#players = players;
         this.#currentPlayer = 0;
 

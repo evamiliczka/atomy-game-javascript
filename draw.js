@@ -45,7 +45,7 @@ class Draw  {
                 this.drawCell(new XY(i, j), 0, null); //!!!
             }
         }
-        document.getElementById("atomy").appendChild(canvas);
+        document.getElementById('atomy').appendChild(canvas);
 }
    
 
