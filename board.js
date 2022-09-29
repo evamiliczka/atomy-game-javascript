@@ -42,11 +42,42 @@ class Board {
             }
         }
       
+      
     } //constructor
+
+    //vyrobit klon
+    clone(){
+      //  debugger; //!!!
+        // Vytvorime novy board. Premenna draw je null - nechcem aby klon nieco vykresloval
+         const clone = new Board(this.#players, null);
+        //const clone= Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+        /*Vsetky zlozitejsie datove typy su predavane odkazom, 
+         takze nemozeme dat   clone.#score = this.#score; 
+         SLICE - vrati kopiu casti pola zacinajucu danym indexom
+        */
+        clone.#score = this.#score.slice(0); 
+
+        /* Tu nastavime dalsie vlastnosti */
+        //prechadzam a kopirujem vsetky bunky v #data, su to objekty typu CELL, indexovane typom XY
+        for (let p in this.#data) {
+            const ourCell = this.#data[p];
+            //pomocna struktura, odkaz je predavany ODKAZOM, takze zmena v cloneCell sposobi zmenu v clone.#data[p]
+            const cloneCell = clone.#data[p]; 
+            cloneCell.atoms = ourCell.atoms;
+            cloneCell.player = ourCell.player;
+        }
+        return clone;
+    }
 
     onTurnDone = function(){} //???
 
-    getColor (player){
+    // Vracia skore daneho hraca; player je objekt
+    getScoreFor(player){
+        const index = this.#players.indexOf(player);
+        return this.#score[index];
+    }
+
+    getColor(player){
             return this.#players[player].color;
         }
 
@@ -56,6 +87,8 @@ class Board {
 
     /* Kto vlastni bunku s danymi suradnicami? */
     getPlayer(xy){
+        const boardClone = this.clone();
+        console.log(boardClone); //!!!
         return this.#data[xy].player;
     }
 
@@ -105,9 +138,11 @@ class Board {
         cell.player = player;
 
         cell.atoms++; //priaj atomy
-
-        this.#draw.drawCell(xy,cell.atoms, cell.player);
-        
+        /* Draw moze byt null, ak je volana v suvislosti s AI.
+        Preto prikaz vykonam len ak draw nie je null */
+        if (this.#draw){
+            this.#draw.drawCell(xy,cell.atoms, cell.player);
+        }
 
         /* Ak je prekrocene nadkriticke mnozstvo */
         if (cell.atoms > cell.limit){
@@ -133,9 +168,12 @@ class Board {
         const neighbors = xy.getNeighbors(); //vysledok je pole suradnic
         cell.atoms -= neighbors.length; //odoberieme tolko atomov, kolko ma susedov
         // !!! console.log("Bunka ", xy.x," ",xy.y," menim pocet atomov (--) na ", cell.atoms);
-    //  debugger;
-        this.#draw.drawCell(xy, cell.atoms, cell.player);
 
+      /* Draw moze byt null, ak je volana v suvislosti s AI.
+        Preto prikaz vykonam len ak draw nie je null */
+        if (this.#draw){
+            this.#draw.drawCell(xy, cell.atoms, cell.player);
+        }
         /* Prejdeme susedne bunky a pridame do nich po atome */
         for (let i=0; i<neighbors.length; i++){
             this.#addAndPush(neighbors[i], cell.player);
@@ -150,7 +188,14 @@ class Board {
          */
         else
             if (this.#criticals.length){
-            setTimeout(this.#explode.bind(this), this.DELAY);
+              /* Ak je DRAW null, tak sme volani v suvislosti s AI.
+                 vTEDY VYBUCHNEM BEZ   onsekorovanie  */
+                 if (this.#draw){ //nie som null, normalny vybuch   
+                         setTimeout(this.#explode.bind(this), this.DELAY);
+                 }
+                 else{ //som null, vybuchnem bez oneskorovania
+                    this.#explode();
+                 }
         } 
             else {  /* konec reakce, hra pokračuje */
              //this.#draw.cell(xy);

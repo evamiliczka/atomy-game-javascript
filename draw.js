@@ -50,9 +50,6 @@ class Draw  {
    
 
 
- 
-
-
 /* vykreslit jednu bunku */
  drawCell(xy, atoms, player){
     /**

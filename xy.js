@@ -29,6 +29,13 @@ class XY {
         if (this.y + 1 < Game.SIZE) { results.push(new XY(this.x, this.y + 1)); }
         return results;
     }
+
+    static fromString(str){
+        const parts = str.split(" ");
+        const x = Number(parts[0]);
+        const y = Number(parts[1]);
+        return new this(x, y);
+    }
 }
 
 

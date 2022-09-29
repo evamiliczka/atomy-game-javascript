@@ -40,15 +40,21 @@ class Game {
         }
     } //#playerExecuteMove
 
-    /* score = skore po dokoncenom tahu ulozene ako pole cisel */
-    #TurnDone(score){
+    #TurnDone(){
+        const scores = []; 
+
         for (let i=0; i < this.#players.length; i++){
-                this.#players[i].printScore(score[i]);
+            const player = this.#players[i];
+            const score = this.#board.getScoreFor(player);
+            player.printScore(score);
+            scores.push(score);
+            
+            //this.#players[i].printScore(score[i]);
         }
+        if (Game.isOver(scores)) {return;} //game over
 
         this.#currentPlayer = (this.#currentPlayer + 1) % this.#players.length;
-        // Ak sa hra este neskoncila, tkak pokracuj
-        if (!Game.isOver(score)) {this.#askPlayer();}
+        this.#askPlayer();        
     } //
 
     static isOver(score){
