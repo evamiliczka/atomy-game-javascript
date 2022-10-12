@@ -116,9 +116,11 @@ class Board {
         console.log(maxScore);
         const winnerIndex = this.#score.indexOf(maxScore);
         console.log(winnerIndex);
-        document.body.appendChild(document.createTextNode("The winner is: "));
-
-        document.body.appendChild(document.createTextNode(this.#players[winnerIndex].getName()));
+        // The winner is vyisujeme len ak nie sme v testovacom rezime,, teda len ak this.#draw nie je null
+        if (this.#draw){
+            document.body.appendChild(document.createTextNode("The winner is: "));
+            document.body.appendChild(document.createTextNode(this.#players[winnerIndex].getName()));
+        }
     }
 
     /* Pridaj atom a pripadne pridaj (push) bunky do zoznamu kritickych buniek */

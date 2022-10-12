@@ -1,5 +1,5 @@
 class Game {
-    static SIZE = 4;
+    static SIZE = 2;
     #players;
     #currentPlayer;
     #draw;
