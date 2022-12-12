@@ -31,8 +31,44 @@ class Player {
     }
 
     play(board, draw, callback){
-        //bude neskor
+        //implementovana v podtriede
     }
+
+    getState(){
+        const state = {
+            name: this.#name,
+            color: this.#color
+        };
+        return state;   
+    }
+
+
+    //Vytvorenie hraca z dat
+    static fromState(state){
+        let constructors = {
+            "PlayerHuman" : PlayerHuman,
+            "PlayerAI": PlayerAI
+        }
+
+        if (state.type in constructors){
+            let constructor = constructors[state.type];
+            return new constructor(state.name, state.color);
+        }
+        else
+            throw new Error("Badly formatted game data"); 
+        /*
+        switch (state.type){ 
+            case "PlayerHuman": 
+                return new PlayerHuman(state.name, state.color);
+                break;
+            case "PlayerAI":
+                return new PlayerAI(state.name, state.color);
+                break;
+            default:
+                throw new Error("Badly formatted game data"); 
+            }*/
+    }
+
 
 
     static startListening() {

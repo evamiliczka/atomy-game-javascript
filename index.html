@@ -32,16 +32,32 @@
 
         <!-- Objekt PlayerHuman ...praca so vstupom pouzivatela --> 
         <script src="playerHuman.js"></script>
-        
+
+        <script src="audio.js"></script>
+         
+        <p>
+            <button id="start">Start</button>
+            <button id="load">Load</button>
+        </p>
          
          
          <div id="atomy"></div>
          
         <!-- Spustit logiku -->
         <script>
-            const karol = new PlayerHuman("Karol Mudry", "DarkRed");
-            const robot = new PlayerAI("Robot Emil", "DarkGreen"); 
-            new Game([karol,robot]); //!!!          
+            const start = document.querySelector("#start");
+            const load = document.querySelector("#load");
+            const game = new Game();
+
+            if (!game.canContinue()) {load.disabled = true;}
+
+            start.addEventListener("click", () => game.start([
+                        new PlayerHuman("Karol Mudry", "DarkRed"),
+                        new PlayerAI("Robot Emil", "DarkGreen")
+                ])
+            );
+
+            load.addEventListener("click", () => game.load());        
         </script>
     </body>
 </html>

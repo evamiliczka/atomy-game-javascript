@@ -7,20 +7,23 @@ class Board {
     #criticals;
     #players;
     #score; 
+    #audio;
     //players..pole s instancemi hracu, draw..objekt typu DRAW
     constructor(players, draw){
         this.DELAY = 200; //pri vykreslovani
         //this.onTurnDone = function(){}; //zavolame po kazdom tahu, definujeme neskor
 
         this.#draw = draw;
-        this.#data = {}; //objekt ex nihilo - zoznam vsetkych buniek typu cell: [atoms (number of atoms), limit, player] - indexujeme "suradnicami" !!!
+        this.#data = {}; //objekt ex nihilo - zoznam vsetkych buniek typu cell: [atoms (number of atoms), limit, Cislo hraca!!!] - indexujeme "suradnicami" !!!
         this.#criticals = [] //zoznam kritickych buniek
         this.#players = players;
-        this.#score = [];
+        this.#score = []; //skore vsetkych hracov
         //nastavime skore vsetkych hracov na 0
         for (let i=0; i<players.length; i++){
             this.#score.push(0);
         }
+        
+        this.#audio = new Audio();
         
         //naplnime hraciu polochu
         for (let i=0 ; i < Game.SIZE; i++){
@@ -33,7 +36,7 @@ class Board {
                 const cell={
                     atoms: 0, //nastav pocet atomov
                     limit: limit, //nastav 
-                    player: null //vlastnik bunky
+                    player: -1 // cislo vlastnika bunky
     
                 }
               //  console.log(cell);
@@ -69,6 +72,26 @@ class Board {
         return clone;
     }
 
+    getState(){
+        return{
+            score: this.#score,
+            data: this.#data
+        }
+    }
+
+    setState(state){
+        this.#score = state.score;
+        this.#data = state.data;
+
+    /* prekreslit celu plochu */
+        for (let p in this.#data){
+            const cell = this.#data[p];
+            const player = this.#players[cell.player];
+            const xy = XY.fromString(p);
+            this.#draw.drawCell(xy, cell.atoms, player);
+        }
+    }
+
     onTurnDone = function(){} //???
 
     // Vracia skore daneho hraca; player je objekt
@@ -87,9 +110,8 @@ class Board {
 
     /* Kto vlastni bunku s danymi suradnicami? */
     getPlayer(xy){
-        const boardClone = this.clone();
-        console.log(boardClone); //!!!
-        return this.#data[xy].player;
+        const index = this.#data[xy].player;
+        return (index == -1 ? null : this.#players[index]);
     }
 
     /* Pridanie atomu */
@@ -104,7 +126,7 @@ class Board {
         else
             /* Ak mame kriticke bunky */
             if (this.#criticals.length > 0){
-                this.#explode();
+                this.#explode(0);
             }
             else{//pridanie bez rozpradu ci konca hry
             this.onTurnDone(this.#score);}
@@ -127,9 +149,8 @@ class Board {
     #addAndPush = function(xy, player){
         const cell = this.#data[xy];
 
-        if (cell.player){ //ak ma bunka priradeneho hraca, odeberiem mu bid
-            const oldPlayerIndex = this.#players.indexOf(cell.player);
-            this.#score[oldPlayerIndex]--;
+        if (cell.player != -1){ //ak ma bunka priradeneho hraca, odeberiem mu bod
+            this.#score[cell.player]--;
         }
 
         /* pridad bod novemu */
@@ -137,13 +158,13 @@ class Board {
         this.#score[playerIndex]++;
 
         //novy vlastnik bunky
-        cell.player = player;
+        cell.player = playerIndex;
 
         cell.atoms++; //priaj atomy
         /* Draw moze byt null, ak je volana v suvislosti s AI.
         Preto prikaz vykonam len ak draw nie je null */
         if (this.#draw){
-            this.#draw.drawCell(xy,cell.atoms, cell.player);
+            this.#draw.drawCell(xy,cell.atoms, player);
         }
 
         /* Ak je prekrocene nadkriticke mnozstvo */
@@ -159,50 +180,52 @@ class Board {
     }
 
 
+/*
+    Sucasna logika komponenty Board teraz spociva v tom, ze kazdy rozpad (jednotlivy aj retazovy) je
+    ukonceny viac menej zbytocnym volanim #explode, v ktorom je splnena podmienka this.#criticals.length === null,
+    a preto dojde k ukonceniu tahu
+*/
 
-    #explode = function(){ //!! toto upravujem sama
-        //if (this.#criticals.length == 0) {console.log("pomoc, nemam co odoberat"); debugger;}
-        const xy = this.#criticals.shift(); //odebereme prvni prvek, mohli by sme i posledny
-        
+    #explode = function(soundLevel){ 
+        //ak uz mame ukoncit tah
+        if (Game.isOver(this.#score) || !this.#criticals.length) //ak je koniec hry, alebo uz nie su kriticke bunky, oni maju !this.#criticals.length
+        {
+            this.onTurnDone();
+            return;
+        }
 
+        const xy = this.#criticals.shift(); //odebereme prvni prvek, mohli by sme i posledny 
         const cell = this.#data[xy]; //vyberieme si danu bunku
+
+        //cell.player je cislo
+        const player = this.#players[cell.player];
 
         const neighbors = xy.getNeighbors(); //vysledok je pole suradnic
         cell.atoms -= neighbors.length; //odoberieme tolko atomov, kolko ma susedov
-        // !!! console.log("Bunka ", xy.x," ",xy.y," menim pocet atomov (--) na ", cell.atoms);
+
+          /* Prejdeme susedne bunky a pridame do nich po atome */
+          for (let i=0; i<neighbors.length; i++){
+            this.#addAndPush(neighbors[i], player);
+        }
 
       /* Draw moze byt null, ak je volana v suvislosti s AI.
         Preto prikaz vykonam len ak draw nie je null */
         if (this.#draw){
-            this.#draw.drawCell(xy, cell.atoms, cell.player);
+            this.#draw.drawCell(xy, cell.atoms, player);
+            this.#audio.play(soundLevel);
+            /* Naplanujeme 
+            1. Zastaveni zvuku o DELAY/2
+            2. Opakovane volani metody s vyssim levelem zvuku
+            */
+            setTimeout(this.#audio.stop.bind(this.#audio), this.DELAY / 2);
+            setTimeout(this.#explode.bind(this, soundLevel + 1), this.DELAY);
         }
-        /* Prejdeme susedne bunky a pridame do nich po atome */
-        for (let i=0; i<neighbors.length; i++){
-            this.#addAndPush(neighbors[i], cell.player);
+        else { //toto je len simulacia, neviem preco zvysuje AudioLevel
+            this.#explode(soundLevel + 1);
         }
+      
 
 
-        if (Game.isOver(this.#score)){
-            this.#onGameOver();
-        }
-        /** Ak nie su ziadne nadkriticke bunky, mozeme pokracovat a povolit mys.
-         * Ak rozprad pokracuje, naplanujeme dalsiu exploziu za dobu Board.DELAY
-         */
-        else
-            if (this.#criticals.length){
-              /* Ak je DRAW null, tak sme volani v suvislosti s AI.
-                 vTEDY VYBUCHNEM BEZ   onsekorovanie  */
-                 if (this.#draw){ //nie som null, normalny vybuch   
-                         setTimeout(this.#explode.bind(this), this.DELAY);
-                 }
-                 else{ //som null, vybuchnem bez oneskorovania
-                    this.#explode();
-                 }
-        } 
-            else {  /* konec reakce, hra pokračuje */
-             //this.#draw.cell(xy);
-            this.onTurnDone(this.#score); //???
-        }
     }
 
     // Ziskat pocet atomov na danych suradniciach

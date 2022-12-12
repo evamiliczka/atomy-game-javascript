@@ -1,22 +1,79 @@
 class Game {
-    static SIZE = 3;
+    static SIZE = 5;
     #players;
     #currentPlayer;
     #draw;
     #board;
     //players = pole s instncami hracu
-    constructor(players){
-        this.#players = players;
+    constructor(){
+        this.#players = [];
         this.#currentPlayer = 0;
-
         this.#draw = new Draw();
-        this.#board = new Board(players, this.#draw);
-   
-         /*  Poslouchač události dokončení tahu */   
-        this.#board.onTurnDone = this.#TurnDone.bind(this); 
+        this.#board = null;    
+    }
 
+    start(players){
+        this.#players = players;
+        this.#board = new Board(players, this.#draw);
+     /*  Poslouchač události dokončení tahu */   
+        this.#board.onTurnDone = this.#turnDone.bind(this); 
         this.#askPlayer();
     }
+
+    canContinue(){
+        return !!localStorage.getItem("atoms"); //dva vykricniky su PRETYPOVANIE na True/false
+    }
+
+    save(){
+        const data = {
+            board : this.#board.getState(),
+            currentPlayer: this.#currentPlayer,
+            players:[]    
+        };
+
+        for (let i=0; i<this.#players.length; i++){
+            data.players.push(this.#players[i].getState());
+        }
+
+        const myJson = JSON.stringify(data);
+        localStorage.setItem("atoms", myJson);
+    }
+
+    load(){
+        var myJson = localStorage.getItem("atoms");
+
+        try{
+            var data = JSON.parse(myJson);
+        }
+            catch(e){
+                alert("Badly formatted game data");
+        }
+
+        for (let i=0; i<data.players.length; i++){
+            this.#players.push(Player.fromState(data.players[i]));
+        }
+
+        this.#board = new Board(this.#players, this.#draw);
+        this.#board.onTurnDone = this.#turnDone.bind(this);
+        this.#board.setState(data.board);
+
+        this.#currentPlayer = data.currentPlayer;
+        this.#updateScores();
+        this.#askPlayer();
+    }
+
+    #updateScores(){
+        const scores = [];
+    
+        for (let i=0; i<this.#players.length; i++) {
+            const player = this.#players[i];
+            const score = this.#board.getScoreFor(player);
+            player.printScore(score);
+            scores.push(score);
+        }
+        return scores;
+    }
+
 
     #askPlayer(){
         const currentPlayer = this.#players[this.#currentPlayer];
@@ -40,7 +97,7 @@ class Game {
         }
     } //#playerExecuteMove
 
-    #TurnDone(){
+    #turnDone(){
         const scores = []; 
 
         for (let i=0; i < this.#players.length; i++){
@@ -54,6 +111,8 @@ class Game {
         if (Game.isOver(scores)) {return;} //game over
 
         this.#currentPlayer = (this.#currentPlayer + 1) % this.#players.length;
+        this.save();
+
         this.#askPlayer();        
     } //
 

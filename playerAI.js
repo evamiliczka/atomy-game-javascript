@@ -1,6 +1,6 @@
 class PlayerAI extends Player{   
     
-    play(board, draw, callback){
+play(board, draw, callback){
         //V scoes si budem uchovavat, kolko bodov by som ziskal polozenim atomu na dane policko, alebo tak nejako
     
         var scores = {};
@@ -17,7 +17,14 @@ class PlayerAI extends Player{
         const best = this.#pickBestMove(scores);
         //Pokracujem tahom na vybrate najlepsie pole
         callback(best);
-    }
+}
+
+getState(){
+        let state = super.getState();
+        state.type = "PlayerAI";
+        return state;
+}
+
     
 /* Pokusne umiestnenie atomu do bunky a zistenie, k akemu skore by tento tah viedol.
 */
