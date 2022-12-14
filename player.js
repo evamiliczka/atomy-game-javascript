@@ -7,16 +7,16 @@ class Player {
     constructor(name, color) {
         this.#color = color;
         this.#name = name;
+
+        
         this.#printedScore = document.createElement("span");
 
         const node = document.createElement("p");
         node.style.color = color;
         node.appendChild(document.createTextNode(name + ": "));
         node.appendChild(this.#printedScore);
-        console.log('Idem vypisat GetElementBy id');
-        console.log(document.getElementById("atomy"));
-        document.getElementById("atomy").appendChild(node);
-        
+        document.getElementById("atomy").appendChild(node)
+      
     }
 
     getName(){
